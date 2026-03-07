@@ -1,0 +1,10 @@
+# Robots.txt for buggaramlinganna.com
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://buggaramlinganna.com/sitemap.xml
+
+# Crawl-delay (optional)
+Crawl-delay: 1
+
