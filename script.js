@@ -108,6 +108,10 @@ if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        // Get submit button
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        
         // Get form data
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData.entries());
@@ -139,76 +143,107 @@ if (contactForm) {
             return;
         }
         
-        // Determine interest type from hidden field, select, or default
-        let interestValue = 'health-insurance'; // default
-        if (hasInterest && data.interest) {
-            interestValue = data.interest;
-        } else if (hasInterestSelect) {
-            const selectEl = contactForm.querySelector('select[name="interest"]');
-            if (selectEl && selectEl.value) {
-                interestValue = selectEl.value;
+        // Show loading state
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        }
+        
+        try {
+            // Determine interest type from hidden field, select, or default
+            let interestValue = 'health-insurance'; // default
+            if (hasInterest && data.interest) {
+                interestValue = data.interest;
+            } else if (hasInterestSelect) {
+                const selectEl = contactForm.querySelector('select[name="interest"]');
+                if (selectEl && selectEl.value) {
+                    interestValue = selectEl.value;
+                }
             }
-        }
-        
-        // Map interest to readable text
-        const interestText = {
-            'health': 'Health Insurance',
-            'life': 'Life Insurance',
-            'vehicle': 'Vehicle Insurance',
-            'home': 'Home Insurance',
-            'health-insurance': 'Health Insurance',
-            'life-insurance': 'Life Insurance',
-            'other': 'Other Insurance'
-        };
-        
-        // Build WhatsApp message
-        let message = `Hello Buggaram Linganna,%0A%0ANew inquiry from website:%0A%0A*Name:* ${data.name}%0A*Phone:* ${data.phone}`;
-        
-        if (hasEmail && data.email) {
-            message += `%0A*Email:* ${data.email}`;
-        }
-        
-        message += `%0A*Interested In:* ${interestText[interestValue] || interestValue}`;
-        
-        // Add additional fields if they exist
-        if (data.age) {
-            message += `%0A*Age of Eldest Member:* ${data.age}`;
-        }
-        if (data.members) {
-            message += `%0A*Family Members:* ${data.members}`;
-        }
-        if (data.message) {
-            message += `%0A*Message:* ${data.message}`;
-        }
-        
-        message += `%0A%0APlease contact me.`;
-        
-        // Open WhatsApp
-        const whatsappUrl = `https://wa.me/917702040476?text=${message}`;
-        window.open(whatsappUrl, '_blank');
-        
-        // Try to send email in background (non-blocking)
-        if (window.EmailJSService && window.EmailJSService.isConfigured()) {
-            const emailResult = await window.EmailJSService.sendContactEmail({
-                name: data.name,
-                phone: data.phone,
-                email: data.email || '',
-                interest: interestText[interestValue] || interestValue,
-                age: data.age || '',
-                members: data.members || '',
-                message: data.message || ''
-            });
             
-            if (emailResult.success) {
-                console.log('Email notification sent successfully');
+            // Map interest to readable text
+            const interestText = {
+                'health': 'Health Insurance',
+                'life': 'Life Insurance',
+                'vehicle': 'Vehicle Insurance',
+                'home': 'Home Insurance',
+                'health-insurance': 'Health Insurance',
+                'life-insurance': 'Life Insurance',
+                'jeevan-labh': 'LIC Jeevan Labh',
+                'smart-pension': 'LIC Smart Pension',
+                'other': 'Other Insurance'
+            };
+            
+            // Build WhatsApp message
+            let message = `Hello Buggaram Linganna,%0A%0ANew inquiry from website:%0A%0A*Name:* ${data.name}%0A*Phone:* ${data.phone}`;
+            
+            if (hasEmail && data.email) {
+                message += `%0A*Email:* ${data.email}`;
+            }
+            
+            message += `%0A*Interested In:* ${interestText[interestValue] || interestValue}`;
+            
+            // Add additional fields if they exist
+            if (data.age) {
+                message += `%0A*Age of Eldest Member:* ${data.age}`;
+            }
+            if (data.members) {
+                message += `%0A*Family Members:* ${data.members}`;
+            }
+            if (data.message) {
+                message += `%0A*Message:* ${data.message}`;
+            }
+            
+            message += `%0A%0APlease contact me.`;
+            
+            // Open WhatsApp
+            const whatsappUrl = `https://wa.me/917702040476?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+            
+            // Try to send email in background (non-blocking)
+            // Check if EmailJS service is available and configured
+            if (window.EmailJSService) {
+                const isConfigured = window.EmailJSService.isConfigured();
+                
+                if (isConfigured) {
+                    const emailResult = await window.EmailJSService.sendContactEmail({
+                        name: data.name,
+                        phone: data.phone,
+                        email: data.email || '',
+                        interest: interestText[interestValue] || interestValue,
+                        age: data.age || '',
+                        members: data.members || '',
+                        message: data.message || ''
+                    });
+                    
+                    if (emailResult.success) {
+                        console.log('Email notification sent successfully');
+                    } else {
+                        console.warn('Email sending failed:', emailResult.error);
+                    }
+                } else {
+                    console.warn('EmailJS is not configured. Email will not be sent.');
+                }
+            } else {
+                console.warn('EmailJSService is not available');
+            }
+            
+            // Reset form
+            contactForm.reset();
+            
+            // Show success message
+            alert('Thank you! We have received your inquiry. We will contact you shortly.');
+            
+        } catch (error) {
+            console.error('Form submission error:', error);
+            alert('An error occurred while processing your request. Please try again.');
+        } finally {
+            // Restore button state
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             }
         }
-        
-        // Reset form
-        contactForm.reset();
-        
-        // Show success message
-        alert('Thank you! We have received your inquiry. We will contact you shortly.');
     });
 }
 
@@ -250,7 +285,7 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 // Observe elements for animation
-document.querySelectorAll('.service-card, .policy-card, .why-us-card, .testimonial-card, .faq-item').forEach(el => {
+document.querySelectorAll('.service-card, .policy-card, .why-us-card, .testimonial-card').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(30px)';
     el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
@@ -265,12 +300,12 @@ style.textContent = `
         transform: translateY(0) !important;
     }
     
-    .service-card:nth-child(1), .policy-card:nth-child(1), .why-us-card:nth-child(1), .testimonial-card:nth-child(1), .faq-item:nth-child(1) { transition-delay: 0.1s; }
-    .service-card:nth-child(2), .policy-card:nth-child(2), .why-us-card:nth-child(2), .testimonial-card:nth-child(2), .faq-item:nth-child(2) { transition-delay: 0.2s; }
-    .service-card:nth-child(3), .policy-card:nth-child(3), .why-us-card:nth-child(3), .testimonial-card:nth-child(3), .faq-item:nth-child(3) { transition-delay: 0.3s; }
-    .service-card:nth-child(4), .policy-card:nth-child(4), .why-us-card:nth-child(4), .testimonial-card:nth-child(4), .faq-item:nth-child(4) { transition-delay: 0.4s; }
-    .service-card:nth-child(5), .policy-card:nth-child(5), .why-us-card:nth-child(5), .faq-item:nth-child(5) { transition-delay: 0.5s; }
-    .service-card:nth-child(6), .policy-card:nth-child(6), .why-us-card:nth-child(6), .faq-item:nth-child(6) { transition-delay: 0.6s; }
+    .service-card:nth-child(1), .policy-card:nth-child(1), .why-us-card:nth-child(1), .testimonial-card:nth-child(1) { transition-delay: 0.1s; }
+    .service-card:nth-child(2), .policy-card:nth-child(2), .why-us-card:nth-child(2), .testimonial-card:nth-child(2) { transition-delay: 0.2s; }
+    .service-card:nth-child(3), .policy-card:nth-child(3), .why-us-card:nth-child(3), .testimonial-card:nth-child(3) { transition-delay: 0.3s; }
+    .service-card:nth-child(4), .policy-card:nth-child(4), .why-us-card:nth-child(4), .testimonial-card:nth-child(4) { transition-delay: 0.4s; }
+    .service-card:nth-child(5), .policy-card:nth-child(5), .why-us-card:nth-child(5) { transition-delay: 0.5s; }
+    .service-card:nth-child(6), .policy-card:nth-child(6), .why-us-card:nth-child(6) { transition-delay: 0.6s; }
 `;
 document.head.appendChild(style);
 
@@ -372,6 +407,10 @@ if (quickQuoteForm) {
     quickQuoteForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        // Get submit button
+        const submitBtn = quickQuoteForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        
         const insuranceType = document.getElementById('quickInsuranceType').value;
         const phone = document.getElementById('quickPhone').value;
         
@@ -387,37 +426,66 @@ if (quickQuoteForm) {
             return;
         }
         
-        // Map insurance type to readable text
-        const insuranceText = {
-            'health': 'Health Insurance',
-            'life': 'Life Insurance',
-            'vehicle': 'Vehicle Insurance'
-        };
-        
-        // Create WhatsApp message
-        const message = `Hello Buggaram Linganna,%0A%0AI am interested in getting a quote for ${insuranceText[insuranceType]}.%0A%0AMy mobile number: ${phone}%0A%0APlease contact me with the best quotes.`;
-        
-        // Redirect to WhatsApp
-        const whatsappUrl = `https://wa.me/917702040476?text=${message}`;
-        window.open(whatsappUrl, '_blank');
-        
-        // Try to send email in background (non-blocking)
-        if (window.EmailJSService && window.EmailJSService.isConfigured()) {
-            const emailResult = await window.EmailJSService.sendQuickQuoteEmail({
-                phone: phone,
-                insuranceType: insuranceType
-            });
-            
-            if (emailResult.success) {
-                console.log('Email notification sent successfully');
-            }
+        // Show loading state
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         }
         
-        // Reset form
-        quickQuoteForm.reset();
-        
-        // Show success message
-        alert('Thank you! We will contact you shortly with the best quotes.');
+        try {
+            // Map insurance type to readable text
+            const insuranceText = {
+                'health': 'Health Insurance',
+                'life': 'Life Insurance',
+                'vehicle': 'Vehicle Insurance'
+            };
+            
+            // Create WhatsApp message
+            const message = `Hello Buggaram Linganna,%0A%0AI am interested in getting a quote for ${insuranceText[insuranceType]}.%0A%0AMy mobile number: ${phone}%0A%0APlease contact me with the best quotes.`;
+            
+            // Redirect to WhatsApp
+            const whatsappUrl = `https://wa.me/917702040476?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+            
+            // Try to send email in background (non-blocking)
+            // Check if EmailJS service is available and configured
+            if (window.EmailJSService) {
+                const isConfigured = window.EmailJSService.isConfigured();
+                
+                if (isConfigured) {
+                    const emailResult = await window.EmailJSService.sendQuickQuoteEmail({
+                        phone: phone,
+                        insuranceType: insuranceType
+                    });
+                    
+                    if (emailResult.success) {
+                        console.log('Quick quote email sent successfully');
+                    } else {
+                        console.warn('Quick quote email failed:', emailResult.error);
+                    }
+                } else {
+                    console.warn('EmailJS is not configured. Email will not be sent.');
+                }
+            } else {
+                console.warn('EmailJSService is not available');
+            }
+            
+            // Reset form
+            quickQuoteForm.reset();
+            
+            // Show success message
+            alert('Thank you! We will contact you shortly with the best quotes.');
+            
+        } catch (error) {
+            console.error('Quick quote form error:', error);
+            alert('An error occurred while processing your request. Please try again.');
+        } finally {
+            // Restore button state
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
     });
 }
 

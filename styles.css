@@ -30,10 +30,12 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    max-width: 100%;
 }
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -42,6 +44,7 @@ body {
     color: var(--dark);
     background: var(--white);
     overflow-x: hidden;
+    width: 100%;
 }
 
 .container {
@@ -202,16 +205,38 @@ img {
     gap: 12px;
 }
 
+/* Navbar Logo - Image fallback */
+.logo .partner-logo-img {
+    width: auto;
+    height: 36px;
+    object-fit: contain;
+    display: none; /* Hidden by default */
+}
+
+.logo .partner-logo-img[style*="display: block"],
+.logo img[src*="star-health"]:not([style*="display: none"]) {
+    display: block !important;
+}
+
 .logo-icon {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     background: var(--gradient);
     border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--white);
-    font-size: 24px;
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.logo-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .logo-text {
@@ -1319,15 +1344,15 @@ img {
 }
 
 .footer-logo .logo-icon {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     background: var(--gradient);
     border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--white);
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .footer-logo .logo-text {

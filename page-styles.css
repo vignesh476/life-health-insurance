@@ -43,6 +43,21 @@
     width: auto;
 }
 
+.partner-logo-wrapper {
+    display: inline-flex;
+    align-items: center;
+}
+
+.partner-logo-fallback {
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
 .page-hero .hero-title {
     font-size: 52px;
     margin-bottom: 20px;
@@ -718,8 +733,169 @@
         grid-template-columns: 1fr;
     }
     
-    .cta-section .cta-buttons {
+.cta-section .cta-buttons {
         flex-direction: column;
+    }
+}
+
+/* ========================================
+   Performance Section
+======================================== */
+.performance-section {
+    padding: 100px 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: var(--white);
+}
+
+.performance-section .section-tag {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+}
+
+.performance-section .section-title,
+.performance-section .section-subtitle {
+    color: var(--white);
+}
+
+.performance-section .section-subtitle {
+    opacity: 0.8;
+}
+
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.performance-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.performance-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+}
+
+.performance-card .perf-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 152, 0, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #ff9800;
+    font-size: 24px;
+}
+
+.performance-card .perf-data {
+    margin-bottom: 16px;
+}
+
+.performance-card .perf-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: #ff9800;
+}
+
+.performance-card .perf-unit {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin-left: 4px;
+}
+
+.performance-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+    color: var(--white);
+}
+
+.performance-card p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ========================================
+   Bonus Rates Section
+======================================== */
+.bonus-section {
+    padding: 100px 0;
+    background: var(--white);
+}
+
+.bonus-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+}
+
+.bonus-table th,
+.bonus-table td {
+    padding: 18px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.bonus-table th {
+    background: var(--gradient);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.bonus-table th:first-child {
+    text-align: left;
+}
+
+.bonus-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.bonus-table tr:hover {
+    background: var(--gray-light);
+}
+
+.bonus-table td {
+    font-size: 15px;
+    color: var(--dark-light);
+}
+
+.table-note {
+    text-align: center;
+    font-size: 14px;
+    color: var(--gray);
+    font-style: italic;
+}
+
+/* Responsive for new sections */
+@media (max-width: 1024px) {
+    .performance-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .performance-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .performance-card .perf-value {
+        font-size: 28px;
     }
 }
 
