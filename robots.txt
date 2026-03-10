@@ -1,9 +1,9 @@
-# Robots.txt for buggaramlinganna.com
+# Robots.txt for starhealthlicinsurance.netlify.app
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://buggaramlinganna.com/sitemap.xml
+Sitemap: https://starhealthlicinsurance.netlify.app/sitemap.xml
 
 # Crawl-delay (optional)
 Crawl-delay: 1
